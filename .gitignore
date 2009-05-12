@@ -1,0 +1,17 @@
+*.CS_
+*.cdb
+*.paf2
+*.pjt
+*.sbl
+*.tcf*
+*.tco
+AxumModulecfg.cmd
+AxumModulecfg.h
+*.h62
+*.s62
+AxumModulecfg_c.c
+AxumModuleg*
+*.lkf
+Debug/Axum*
+Debug/hex.map
+*.log
