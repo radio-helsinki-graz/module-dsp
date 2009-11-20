@@ -4,6 +4,7 @@ void InitializeProcessing()
 {
 	int cntChannel;
 	int cntBand;
+	int cntSample;
 
 	for (cntChannel=0; cntChannel<NUMBEROFGAINOBJECTS; cntChannel++)
 	{
@@ -24,10 +25,10 @@ void InitializeProcessing()
 /*	for (cntChannel=0; cntChannel<NUMBEROFMONOOBJECTS; cntChannel++)
 	{
 		MonoBInputFrom[cntChannel] = cntChannel^1;
-		
+
 		MonoInputAFactor[cntChannel] = 0;
 		MonoInputBFactor[cntChannel] = 0;
-		
+
 		Update_MonoInputAFactor[cntChannel] = 1;
 		Update_MonoInputBFactor[cntChannel] = 1;
 	}*/
@@ -47,12 +48,12 @@ void InitializeProcessing()
 			EQDelayBuffer[(cntChannel*NUMBEROFEQBANDS*2)+(cntBand*2)+1] = 0;
 		}
 
-		EQBand1Output[cntChannel] = 0;  
-		EQBand2Output[cntChannel] = 0;  
-		EQBand3Output[cntChannel] = 0;  
-		EQBand4Output[cntChannel] = 0;  
-		EQBand5Output[cntChannel] = 0;  
-		EQBand6Output[cntChannel] = 0;  
+		EQBand1Output[cntChannel] = 0;
+		EQBand2Output[cntChannel] = 0;
+		EQBand3Output[cntChannel] = 0;
+		EQBand4Output[cntChannel] = 0;
+		EQBand5Output[cntChannel] = 0;
+		EQBand6Output[cntChannel] = 0;
 	}
 	for (cntChannel=0; cntChannel<NUMBEROFEQOBJECTS*NUMBEROFEQBANDS*2; cntChannel++)
 	{
@@ -62,13 +63,16 @@ void InitializeProcessing()
 	for (cntChannel=0;cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
 	{
 		CompressorReductionLevel[cntChannel] = 1;
-		Threshold[cntChannel] = 21474836.48;
+		AGCThreshold[cntChannel] = 21474836.48;
+		DownwardExpanderThreshold[cntChannel] = 21474836.48;
 
 		DynamicsOriginalFactor[cntChannel] = 1;
 		DynamicsProcessedFactor[cntChannel] = 0;
+		CompressionData[cntChannel] = 0.1;
+		DynamicsOn[cntChannel] = 0;
 
-//		DuckLevelFactor[cntChannel] =  0;
-//		Update_DuckLevelFactor[cntChannel] = 1;
+		DownwardExpanderFactor[cntChannel] = 1;
+		DownwardExpanderAverage[cntChannel] = 0;
 	}
 
 	for (cntChannel=0;cntChannel<NUMBEROFLEVELOBJECTS; cntChannel++)
@@ -85,6 +89,15 @@ void InitializeProcessing()
 	PPMReleaseFactor = 0.99980814;
 	VUReleaseFactor = 0.9;
 	RMSReleaseFactor = 0.99956109;
+
+	for (cntChannel=0;cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
+	{
+		RMSDelay[cntChannel].Ptr = 0;
+		for (cntSample=0; cntSample<RMS_LENGTH; cntSample++)
+		{
+			RMSDelay[cntChannel].Buffer[cntSample] = 0;
+		}
+	}
 }
 
 void Processing(signed int *InputBuffer, signed int *OutputBuffer)
@@ -122,7 +135,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 			float d1 = FilterDelayBuffer[cntDelaySample+1];
 			InputGainFactor[cntChannel] = (FactorX*InputGainFactor[cntChannel])+(Update_InputGainFactor[cntChannel]*FactorY);
 
-			FilterDelayBuffer[cntDelaySample+1] = FilterDelayBuffer[cntDelaySample];	
+			FilterDelayBuffer[cntDelaySample+1] = FilterDelayBuffer[cntDelaySample];
 			FilterDelayBuffer[cntDelaySample] =	(GainInput[cntChannel]) +
 												(d0*FilterCoefficients[cntSample]) +
 												(d1*FilterCoefficients[cntSample+1]);
@@ -151,7 +164,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 	}*/
 
 	// EQ
-	//a0-a2 = zero / b0-b2 = pole  
+	//a0-a2 = zero / b0-b2 = pole
 	//Coefficient[0] = -b1/b0; <- backward
 	//Coefficient[1] = -b2/b0; <- backward
 	//Coefficient[2] = a0/b0;  <- forward
@@ -167,7 +180,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		float d0 = EQDelayBuffer[cntDelaySample];
 		float d1 = EQDelayBuffer[cntDelaySample+1];
 
-		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];	
+		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];
 		EQDelayBuffer[cntDelaySample] = EQInput[cntChannel] +
 										(d0*EQCoefficients[cntSample]) +
 										(d1*EQCoefficients[cntSample+1]);
@@ -187,7 +200,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		float d0 = EQDelayBuffer[cntDelaySample];
 		float d1 = EQDelayBuffer[cntDelaySample+1];
 
-		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];	
+		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];
 		EQDelayBuffer[cntDelaySample] = EQBand1Output[cntChannel] +
 										(d0*EQCoefficients[cntSample]) +
 										(d1*EQCoefficients[cntSample+1]);
@@ -207,7 +220,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		float d0 = EQDelayBuffer[cntDelaySample];
 		float d1 = EQDelayBuffer[cntDelaySample+1];
 
-		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];	
+		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];
 		EQDelayBuffer[cntDelaySample] = 	EQBand2Output[cntChannel] +
 									(d0*EQCoefficients[cntSample]) +
 									(d1*EQCoefficients[cntSample+1]);
@@ -227,7 +240,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		float d0 = EQDelayBuffer[cntDelaySample];
 		float d1 = EQDelayBuffer[cntDelaySample+1];
 
-		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];	
+		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];
 		EQDelayBuffer[cntDelaySample] = EQBand3Output[cntChannel] +
 										(d0*EQCoefficients[cntSample]) +
 										(d1*EQCoefficients[cntSample+1]);
@@ -247,7 +260,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		float d0 = EQDelayBuffer[cntDelaySample];
 		float d1 = EQDelayBuffer[cntDelaySample+1];
 
-		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];	
+		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];
 		EQDelayBuffer[cntDelaySample] = EQBand4Output[cntChannel] +
 										(d0*EQCoefficients[cntSample]) +
 										(d1*EQCoefficients[cntSample+1]);
@@ -267,7 +280,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		float d0 = EQDelayBuffer[cntDelaySample];
 		float d1 = EQDelayBuffer[cntDelaySample+1];
 
-		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];	
+		EQDelayBuffer[cntDelaySample+1] = EQDelayBuffer[cntDelaySample];
 		EQDelayBuffer[cntDelaySample] = EQBand5Output[cntChannel] +
 										(d0*EQCoefficients[cntSample]) +
 										(d1*EQCoefficients[cntSample+1]);
@@ -282,85 +295,154 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 
 	//Dynamics
 	{
-		float CompressionData[NUMBEROFDYNAMICSOBJECTS];
+		float rms_sample;
 		float ProcessedSample[NUMBEROFDYNAMICSOBJECTS];
+		float MaxSample[NUMBEROFDYNAMICSOBJECTS];
 
-		// limiter for Compression thing.... 
-		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)			
+/**********************/
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
 		{
-			float AbsoluteAudio = _fabsf(DynamicsInput[cntChannel]);
+			float PairedSample = _fabsf(DynamicsInput[cntChannel^0x01]);
+			DynamicsOutput[cntChannel] = DynamicsInput[cntChannel];
+			MaxSample[cntChannel] = _fabsf(DynamicsInput[cntChannel]);
+			if (PairedSample > MaxSample[cntChannel])
+				MaxSample[cntChannel] = PairedSample;
+		}
+
+		//Expander
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel+=2)
+		{
+			struct delay_struct *delay_line = &RMSDelay[cntChannel];
+			rms_sample = MaxSample[cntChannel];
+			rms_sample = (rms_sample*rms_sample)/(RMS_LENGTH*4);
+			DownwardExpanderAverage[cntChannel]	+= (rms_sample-delay_line->Buffer[delay_line->Ptr]);
+			delay_line->Buffer[delay_line->Ptr] = rms_sample;
+			delay_line->Ptr++;
+			if (delay_line->Ptr>(RMS_LENGTH-1))
+			{
+				delay_line->Ptr = 0;
+			}
+
+			if (DownwardExpanderAverage[cntChannel] >= 0)
+			{
+				DownwardExpanderRMS[cntChannel] = _rcpsp(_rsqrsp(DownwardExpanderAverage[cntChannel]));
+			}
+		}
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel+=2)
+		{
+			DownwardExpanderLevel[cntChannel] = 1;
+			if (DownwardExpanderRMS[cntChannel]<DownwardExpanderThreshold[cntChannel])
+			{
+				float Diff = 1-(DownwardExpanderRMS[cntChannel]*_rcpsp(DownwardExpanderThreshold[cntChannel]));
+				DownwardExpanderLevel[cntChannel] = 1-(Diff*1.05);
+				if (DownwardExpanderLevel[cntChannel]<0)
+				{
+					DownwardExpanderLevel[cntChannel] = 0;
+				}
+			}
+		}
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel+=2)
+		{
+			float Offset = DownwardExpanderLevel[cntChannel]-DownwardExpanderFactor[cntChannel];
+			if (Offset<0)
+			{
+				DownwardExpanderFactor[cntChannel] *= DownwardExpanderReleaseFactor;
+	        }
+			else
+			{
+				if (Offset > 0.00005)
+				{
+					Offset = 0.00005;
+				}
+				DownwardExpanderFactor[cntChannel] += Offset;
+	        }
+		}
+		//Now do all channels again
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
+		{
+			DynamicsOutput[cntChannel] *= DownwardExpanderFactor[cntChannel&0xFE];
+		}
+
+		// limiter for Compression thing....
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
+		{
+			float AbsoluteAudio = _fabsf(DynamicsOutput[cntChannel]);
 			DynamicsRMS[cntChannel] *= RMSFactor;
 			if (AbsoluteAudio>DynamicsRMS[cntChannel])
 			 	DynamicsRMS[cntChannel] = AbsoluteAudio;
-			
-			AbsoluteAudio = _fabsf(DynamicsInput[DynamicsStereoInputFrom[cntChannel]]);
+
+			AbsoluteAudio = _fabsf(DynamicsOutput[cntChannel^0x01]);
 			if (AbsoluteAudio>DynamicsRMS[cntChannel])
 			 	DynamicsRMS[cntChannel] = AbsoluteAudio;
 		}
-	
-		//Calculate Compression factor
-		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)			
-		{
-			float AbsoluteThreshold = Threshold[cntChannel];
-	 		CompressionData[cntChannel] = AbsoluteThreshold*_rcpsp(DynamicsRMS[cntChannel]);
 
+		//Calculate Compression factor
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel+=2)
+		{
+			float AbsoluteThreshold = AGCThreshold[cntChannel];
 			//Check Threshold
 			if (DynamicsRMS[cntChannel]<AbsoluteThreshold)
 			{	//Release
-				CompressionData[cntChannel] = CompressorReductionLevel[cntChannel];
+				//CompressionData[cntChannel] = CompressorReductionLevel[cntChannel];
+				if (CompressionData[cntChannel] > InverseMakeupGain[cntChannel])//was 0.1
+				{//0.1 is unity gain because makeup of 10x is used
+					CompressionData[cntChannel] *= 0.99999;
+				}
+			}
+			else
+			{
+//				CompressionData[cntChannel] = _divf(AbsoluteThreshold, DynamicsRMS[cntChannel]);
+				CompressionData[cntChannel] = AbsoluteThreshold*_rcpsp(DynamicsRMS[cntChannel]);
 			}
 		}
-		
+
 		//Make Attack/Release
 		{
 			float FactorX = 1;
-			for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)			
+			for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel+=2)
 			{
+				FactorX = 1;
 				if (CompressionData[cntChannel]<CompressorReductionLevel[cntChannel])
 				{
-				    FactorX = AttackFactor; 
+				    FactorX = AttackFactor;
 		        }
 
 				if (CompressionData[cntChannel]>CompressorReductionLevel[cntChannel])
 				{
-				    FactorX = ReleaseFactor; 
+				    FactorX = ReleaseFactor;
 		        }
 				CompressorReductionLevel[cntChannel] *= FactorX;
 			}
 		}
 
 		//Check Release maximum
-		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)			
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel+=2)
 		{
 			if (CompressorReductionLevel[cntChannel]>1)
 				CompressorReductionLevel[cntChannel]=1;
 		}
 
-		//Create result			
-		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)			
+		//Create result
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
 		{
-			ProcessedSample[cntChannel] = DynamicsInput[cntChannel]*CompressorReductionLevel[cntChannel];
+			ProcessedSample[cntChannel] = DynamicsOutput[cntChannel]*CompressorReductionLevel[cntChannel&0xFE];
 		}
 
 		//Create crossfade & MakeUpGain
-		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)			
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
 		{
-			DynamicsOutput[cntChannel] = DynamicsInput[cntChannel] * DynamicsOriginalFactor[cntChannel];
-			DynamicsOutput[cntChannel] += ProcessedSample[cntChannel]*DynamicsProcessedFactor[cntChannel]*MakeUpGain;
-//			DynamicsOutput[cntChannel] *= DuckLevelFactor[cntChannel];
+			DynamicsOutput[cntChannel] *= DynamicsOriginalFactor[cntChannel];
+			DynamicsOutput[cntChannel] += ProcessedSample[cntChannel]*DynamicsProcessedFactor[cntChannel]*MakeupGain[cntChannel];
 		}
-
-		//Do Duck interpolation
-		/*
+		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel++)
 		{
-			const float FactorX = DuckReleaseFactor;
-			const float FactorY = 1-DuckReleaseFactor;
-			for (cntChannel=0;cntChannel<NUMBEROFLEVELOBJECTS; cntChannel++)
+			if (!DynamicsOn[cntChannel])
 			{
-				DuckLevelFactor[cntChannel] = (DuckLevelFactor[cntChannel]*FactorX)+(FactorY*Update_DuckLevelFactor[cntChannel]);
+				DynamicsOutput[cntChannel] = DynamicsInput[cntChannel];
 			}
 		}
-		*/
+/***/
+
 	}
 
 	{
@@ -378,10 +460,9 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		const float FactorY = VUReleaseFactor;
 		for (cntChannel=0;cntChannel<NUMBEROFMETEROBJECTS; cntChannel++)
 		{
-			float AbsoluteAudio = _fabsf(MeterInput[cntChannel]);				
+			float AbsoluteAudio = _fabsf(MeterInput[cntChannel]);
 			if (AbsoluteAudio>MeterPPM[cntChannel])
-				MeterPPM[cntChannel] = AbsoluteAudio; 				
-//			MeterPPM[cntChannel] *= FactorX;
+				MeterPPM[cntChannel] = AbsoluteAudio;
 			MeterVU[cntChannel] = (MeterVU[cntChannel]*FactorY)+((1-FactorY)*AbsoluteAudio);
 		}
 	}
@@ -401,14 +482,14 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 				Phase = _fabsf(Difference * X2);
 			}
 			if (Phase<PhaseRMS[cntChannel])
-			{	
+			{
 				ReleaseFactor = 1-PhaseRelease;
 			}
 			else if (Phase>PhaseRMS[cntChannel])
 			{
 				ReleaseFactor = 1+PhaseRelease;
 			}
-	
+
 			PhaseRMS[cntChannel] *= ReleaseFactor;
 			if (PhaseRMS[cntChannel] < 0.01)
 					PhaseRMS[cntChannel] = 0.01;

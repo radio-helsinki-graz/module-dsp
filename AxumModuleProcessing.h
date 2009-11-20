@@ -90,23 +90,26 @@ float EQBand4Output[NUMBEROFEQOBJECTS];
 float EQBand5Output[NUMBEROFEQOBJECTS];
 
 //Dynamics
-int DynamicsStereoInputFrom[NUMBEROFDYNAMICSOBJECTS];
-
 float DynamicsRMS[NUMBEROFDYNAMICSOBJECTS];
+volatile float DownwardExpanderRMS[NUMBEROFDYNAMICSOBJECTS];
+volatile float DownwardExpanderAverage[NUMBEROFDYNAMICSOBJECTS];
 float CompressorReductionLevel[NUMBEROFDYNAMICSOBJECTS];
+int DynamicsOn[NUMBEROFDYNAMICSOBJECTS];
 
 float DynamicsOriginalFactor[NUMBEROFDYNAMICSOBJECTS];
 float DynamicsProcessedFactor[NUMBEROFDYNAMICSOBJECTS];
+float DownwardExpanderFactor[NUMBEROFDYNAMICSOBJECTS];
+float CompressionData[NUMBEROFDYNAMICSOBJECTS];
 
 float AttackFactor = 0.9978;
 float ReleaseFactor = 1.0000217;
-float Threshold[NUMBEROFDYNAMICSOBJECTS];
-
-float MakeUpGain = 10;
-
-//volatile float DuckReleaseFactor = 0.9999;
-//float DuckLevelFactor[NUMBEROFDYNAMICSOBJECTS];
-//float Update_DuckLevelFactor[NUMBEROFDYNAMICSOBJECTS];
+float AGCThreshold[NUMBEROFDYNAMICSOBJECTS];
+float MakeupGain[NUMBEROFDYNAMICSOBJECTS];
+float InverseMakeupGain[NUMBEROFDYNAMICSOBJECTS];
+float DownwardExpanderThreshold[NUMBEROFDYNAMICSOBJECTS];
+float DownwardExpanderLevel[NUMBEROFDYNAMICSOBJECTS];
+float DownwardExpanderReleaseFactor = 0.9995;
+float DownwardExpanderAttackFactor = 1.00099;//1.002
 
 //Leveler
 float LevelFactor[NUMBEROFLEVELOBJECTS];
@@ -117,6 +120,14 @@ float MeterVU[NUMBEROFMETEROBJECTS];
 float PhaseRMS[NUMBEROFMETEROBJECTS/2];
 
 float PhaseRelease = 0.0002;
+
+#define RMS_LENGTH 256
+struct delay_struct
+{
+	float Buffer[RMS_LENGTH];
+	unsigned int Ptr;
+} RMSDelay[NUMBEROFDYNAMICSOBJECTS];
+
 
 void InitializeProcessing();
 void Processing(signed int *InputBuffer, signed int *OutputBuffer);
