@@ -347,10 +347,10 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 			if (Offset<0)
 			{
 				DownwardExpanderFactor[cntChannel] *= DownwardExpanderReleaseFactor;
-				if (DownwardExpanderFactor[cntChannel]<0.0125)
+/*				if (DownwardExpanderFactor[cntChannel]<0.0125)
 				{
 					DownwardExpanderFactor[cntChannel] = 0.0125;
-				}
+				}*/
 	        }
 			else
 			{
