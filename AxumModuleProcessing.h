@@ -92,7 +92,7 @@ float EQBand5Output[NUMBEROFEQOBJECTS];
 //Dynamics
 float DynamicsRMS[NUMBEROFDYNAMICSOBJECTS];
 volatile float DownwardExpanderRMS[NUMBEROFDYNAMICSOBJECTS];
-volatile float DownwardExpanderAverage[NUMBEROFDYNAMICSOBJECTS];
+volatile double DownwardExpanderAverage[NUMBEROFDYNAMICSOBJECTS];
 float CompressorReductionLevel[NUMBEROFDYNAMICSOBJECTS];
 int DynamicsOn[NUMBEROFDYNAMICSOBJECTS];
 

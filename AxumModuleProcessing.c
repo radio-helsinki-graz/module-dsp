@@ -314,26 +314,22 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		{
 			struct delay_struct *delay_line = &RMSDelay[cntChannel];
 			rms_sample = MaxSample[cntChannel];
-			rms_sample = (rms_sample*rms_sample)/(RMS_LENGTH*4);
-			DownwardExpanderAverage[cntChannel]	+= (rms_sample-delay_line->Buffer[delay_line->Ptr]);
+			rms_sample = (rms_sample*rms_sample)/(RMS_LENGTH);
+			DownwardExpanderAverage[cntChannel]	+= rms_sample;
+			DownwardExpanderAverage[cntChannel]	-= delay_line->Buffer[delay_line->Ptr];
 			delay_line->Buffer[delay_line->Ptr] = rms_sample;
 			delay_line->Ptr++;
 			if (delay_line->Ptr>(RMS_LENGTH-1))
 			{
 				delay_line->Ptr = 0;
 			}
-
-			if (DownwardExpanderAverage[cntChannel] >= 0)
-			{
-				DownwardExpanderRMS[cntChannel] = _rcpsp(_rsqrsp(DownwardExpanderAverage[cntChannel]));
-			}
 		}
 		for (cntChannel=0; cntChannel<NUMBEROFDYNAMICSOBJECTS; cntChannel+=2)
 		{
 			DownwardExpanderLevel[cntChannel] = 1;
-			if (DownwardExpanderRMS[cntChannel]<DownwardExpanderThreshold[cntChannel])
+			if (DownwardExpanderAverage[cntChannel]<DownwardExpanderThreshold[cntChannel])
 			{
-				float Diff = 1-(DownwardExpanderRMS[cntChannel]*_rcpsp(DownwardExpanderThreshold[cntChannel]));
+				float Diff = 1-(DownwardExpanderAverage[cntChannel]*_rcpsp(DownwardExpanderThreshold[cntChannel]));
 				DownwardExpanderLevel[cntChannel] = 1-(Diff*1.05);
 				if (DownwardExpanderLevel[cntChannel]<0)
 				{
