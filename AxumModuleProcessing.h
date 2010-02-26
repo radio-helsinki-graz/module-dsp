@@ -108,7 +108,7 @@ float MakeupGain[NUMBEROFDYNAMICSOBJECTS];
 float InverseMakeupGain[NUMBEROFDYNAMICSOBJECTS];
 float DownwardExpanderThreshold[NUMBEROFDYNAMICSOBJECTS];
 float DownwardExpanderLevel[NUMBEROFDYNAMICSOBJECTS];
-float DownwardExpanderReleaseFactor = 0.9995;
+float DownwardExpanderReleaseFactor = 0.9997;
 float DownwardExpanderAttackFactor = 1.00099;//1.002
 
 //Leveler
