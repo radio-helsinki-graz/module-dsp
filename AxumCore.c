@@ -319,12 +319,11 @@ int main()
 	unsigned int cntDebug;
 	int cntChannel;
 
-/*	InitializeProcessing();
-	while (1)
-	{
-		Processing(DMABuffer_RCV[0], DMABuffer_XMIT[0]);
-	}*/
-
+//	InitializeProcessing();
+//  while (1)
+//	{
+//		Processing(DMABuffer_RCV[0], DMABuffer_XMIT[0]);
+//	}
 
 	IER = 0x00000000;	//Disable all interrupts
 	CSR &= 0xFFFFFFFE;	//Disable GIE

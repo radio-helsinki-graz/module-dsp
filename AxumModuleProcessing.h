@@ -14,25 +14,25 @@
 #define NUMBEROFLEVELOBJECTS        NUMBEROFOBJECTS
 #define NUMBEROFMETEROBJECTS        NUMBEROFOBJECTS
 
-int RoutingFrom[7*NUMBEROFOBJECTS] =
+int RoutingFrom[8*NUMBEROFOBJECTS] =
 {
 //GainInput from
-    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
 
 //MonoInput from
-//  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 
 //EQInput from
     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
 
 //DynamicsInput from
-    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+    4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
 
 //McASPAInput from
-    5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+    6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
 
 //McASPBInput from
-    4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
+    5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
 
 //MeterInput from
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -42,24 +42,24 @@ int RoutingFrom[7*NUMBEROFOBJECTS] =
 };
 
 
-float InputSampleData[7*NUMBEROFOBJECTS];
+float InputSampleData[8*NUMBEROFOBJECTS];
 float *GainInput            = &InputSampleData[0];
-//float *MonoInput          = &InputSampleData[1*NUMBEROFOBJECTS];
-float *EQInput              = &InputSampleData[1*NUMBEROFOBJECTS];
-float *DynamicsInput        = &InputSampleData[2*NUMBEROFOBJECTS];
-float *McASPAInput          = &InputSampleData[3*NUMBEROFOBJECTS];
-float *McASPBInput          = &InputSampleData[4*NUMBEROFOBJECTS];
-float *MeterInput           = &InputSampleData[5*NUMBEROFOBJECTS];
-float *LevelInput           = &InputSampleData[6*NUMBEROFOBJECTS];
+float *MonoInput          	= &InputSampleData[1*NUMBEROFOBJECTS];
+float *EQInput              = &InputSampleData[2*NUMBEROFOBJECTS];
+float *DynamicsInput        = &InputSampleData[3*NUMBEROFOBJECTS];
+float *McASPAInput          = &InputSampleData[4*NUMBEROFOBJECTS];
+float *McASPBInput          = &InputSampleData[5*NUMBEROFOBJECTS];
+float *MeterInput           = &InputSampleData[6*NUMBEROFOBJECTS];
+float *LevelInput           = &InputSampleData[7*NUMBEROFOBJECTS];
 
-float OutputSampleData[6*NUMBEROFOBJECTS];
+float OutputSampleData[7*NUMBEROFOBJECTS];
 float *McASPAOutput     = &OutputSampleData[0];
 float *McASPBOutput     = &OutputSampleData[1*NUMBEROFOBJECTS];
 float *GainOutput       = &OutputSampleData[2*NUMBEROFOBJECTS];
-//float *MonoOutput         = &OutputSampleData[3*NUMBEROFOBJECTS];
-float *EQBand6Output    = &OutputSampleData[3*NUMBEROFOBJECTS];
-float *DynamicsOutput   = &OutputSampleData[4*NUMBEROFOBJECTS];
-float *LevelOutput      = &OutputSampleData[5*NUMBEROFOBJECTS];
+float *MonoOutput       = &OutputSampleData[3*NUMBEROFOBJECTS];
+float *EQBand6Output    = &OutputSampleData[4*NUMBEROFOBJECTS];
+float *DynamicsOutput   = &OutputSampleData[5*NUMBEROFOBJECTS];
+float *LevelOutput      = &OutputSampleData[6*NUMBEROFOBJECTS];
 
 volatile float SmoothFactor = 1-0.002;
 volatile float PPMReleaseFactor;
@@ -74,11 +74,11 @@ float FilterDelayBuffer[NUMBEROFGAINOBJECTS*2];
 const float FilterCoefficients[NUMBEROFGAINOBJECTS*5];
 
 //Mono
-//int MonoBInputFrom[NUMBEROFMONOOBJECTS];
-//float MonoInputAFactor[NUMBEROFMONOOBJECTS];
-//float MonoInputBFactor[NUMBEROFMONOOBJECTS];
-//float Update_MonoInputAFactor[NUMBEROFMONOOBJECTS];
-//float Update_MonoInputBFactor[NUMBEROFMONOOBJECTS];
+int MonoBInputFrom[NUMBEROFMONOOBJECTS];
+float MonoInputAFactor[NUMBEROFMONOOBJECTS];
+float MonoInputBFactor[NUMBEROFMONOOBJECTS];
+float Update_MonoInputAFactor[NUMBEROFMONOOBJECTS];
+float Update_MonoInputBFactor[NUMBEROFMONOOBJECTS];
 
 // EQ
 const float EQCoefficients[NUMBEROFEQOBJECTS*NUMBEROFEQBANDS*5];

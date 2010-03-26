@@ -22,7 +22,7 @@ void InitializeProcessing()
 		Update_InputGainFactor[cntChannel] = 1;
 	}
 
-/*	for (cntChannel=0; cntChannel<NUMBEROFMONOOBJECTS; cntChannel++)
+	for (cntChannel=0; cntChannel<NUMBEROFMONOOBJECTS; cntChannel++)
 	{
 		MonoBInputFrom[cntChannel] = cntChannel^1;
 
@@ -31,7 +31,7 @@ void InitializeProcessing()
 
 		Update_MonoInputAFactor[cntChannel] = 1;
 		Update_MonoInputBFactor[cntChannel] = 1;
-	}*/
+	}
 
 	for (cntChannel=0; cntChannel<NUMBEROFEQOBJECTS; cntChannel++)
 	{
@@ -114,7 +114,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 		McASPAOutput[cntChannel] = InputBuffer[cntChannel];
 	}
 
-	for (cntInputObject=0;cntInputObject<6;cntInputObject++)
+	for (cntInputObject=0;cntInputObject<8;cntInputObject++)
 	{
 	 	for (cntChannel=0;cntChannel<NUMBEROFOBJECTS; cntChannel++)
 		{
@@ -152,7 +152,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 	}
 
 	//Mono
-/*	{
+	{
 		const float FactorX = SmoothFactor;
 		const float FactorY = 1-SmoothFactor;
 		for (cntChannel=0; cntChannel<NUMBEROFMONOOBJECTS; cntChannel++)
@@ -161,7 +161,7 @@ void Processing(signed int *InputBuffer, signed int *OutputBuffer)
 			MonoInputBFactor[cntChannel] = (MonoInputBFactor[cntChannel]*FactorX)+(FactorY*Update_MonoInputBFactor[cntChannel]);
 			MonoOutput[cntChannel] = MonoInput[cntChannel]*MonoInputAFactor[cntChannel]+ MonoInput[MonoBInputFrom[cntChannel]]*MonoInputBFactor[cntChannel];
 		}
-	}*/
+	}
 
 	// EQ
 	//a0-a2 = zero / b0-b2 = pole
